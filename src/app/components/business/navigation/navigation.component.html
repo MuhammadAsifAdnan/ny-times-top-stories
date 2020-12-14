@@ -1,0 +1,13 @@
+<mat-toolbar color="primary" class="app-navigation-wrapper">
+  <span class="badge">{{ badge }}</span>
+  <div class="nav-links-wrapper">
+    <a
+      *ngFor="let nav of navList"
+      mat-button
+      class="nav-link"
+      routerLink="{{ nav.path }}"
+      routerLinkActive="active"
+      >{{ nav.displayName }}
+    </a>
+  </div>
+</mat-toolbar>
