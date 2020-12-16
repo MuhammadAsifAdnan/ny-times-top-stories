@@ -1,4 +1,11 @@
-import { Component, Input, OnInit, Output, EventEmitter } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnInit,
+  Output,
+  EventEmitter,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { OwlOptions } from 'ngx-owl-carousel-o';
 import { Article } from 'src/app/models/article';
 
@@ -20,6 +27,7 @@ import { Article } from 'src/app/models/article';
     </owl-carousel-o>
   `,
   styleUrls: ['./story-tiles.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class StoryTilesComponent implements OnInit {
   @Input() stories: Article[] | [] = [];
