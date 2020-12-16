@@ -6,7 +6,7 @@ import { Article } from 'src/app/models/article';
   selector: 'app-story-tiles',
   template: `
     <owl-carousel-o [options]="customOptions">
-      <ng-container *ngFor="let story of stories">
+      <ng-container *ngFor="let story of stories; trackBy: storiesTrackBy">
         <ng-template carouselSlide [id]="story.uri">
           <div class="story-tile-wrapper" (click)="setSelectedStory(story)">
             <h4 class="title">{{ story.title }}</h4>
@@ -51,6 +51,8 @@ export class StoryTilesComponent implements OnInit {
   constructor() {}
 
   ngOnInit(): void {}
+
+  storiesTrackBy = (index: number, story: Article) => story.uri;
 
   setSelectedStory(story: Article) {
     this.onSelectedArticle.emit(story);

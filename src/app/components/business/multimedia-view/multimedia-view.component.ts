@@ -1,4 +1,10 @@
-import { Component, Input, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  OnChanges,
+  OnInit,
+} from '@angular/core';
 import { Multimedia } from '../../../models/article';
 
 @Component({
@@ -14,14 +20,17 @@ import { Multimedia } from '../../../models/article';
     </div>
   `,
   styleUrls: ['./multimedia-view.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MultimediaViewComponent implements OnInit {
+export class MultimediaViewComponent implements OnInit, OnChanges {
   @Input() multimedia?: Multimedia[];
   @Input() format?: string;
   selectedImage?: Multimedia;
   constructor() {}
 
-  ngOnInit(): void {
+  ngOnInit(): void {}
+
+  ngOnChanges(): void {
     if (this.format && this.multimedia?.length) {
       this.selectedImage = this.multimedia.find(
         (item) => item.type === 'image' && item.format === this.format

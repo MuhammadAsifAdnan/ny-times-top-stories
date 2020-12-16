@@ -1,4 +1,9 @@
-import { Component, Input, OnInit } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  Input,
+  OnInit,
+} from '@angular/core';
 import { Article } from 'src/app/models/article';
 
 @Component({
@@ -16,9 +21,10 @@ import { Article } from 'src/app/models/article';
     </div>
   `,
   styleUrls: ['./article.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ArticleComponent implements OnInit {
-  @Input() article?: Article;
+  @Input() article?: Article | null;
   constructor() {}
 
   ngOnInit(): void {}

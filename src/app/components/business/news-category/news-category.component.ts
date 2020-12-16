@@ -1,4 +1,10 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { SectionEnum } from 'src/app/enums/section.enum';
@@ -23,17 +29,19 @@ import { IndexedDBService } from 'src/app/services/indexed-db.service';
     <mat-spinner *ngIf="loadingSpinner" class="loading-spinner"></mat-spinner>
   `,
   styleUrls: ['./news-category.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NewsCategoryComponent implements OnInit, OnDestroy {
   routeParamSubscription!: Subscription;
   stories: Article[] | [] = [];
-  selectedArticle?: Article;
+  selectedArticle?: Article | null;
   loadingSpinner = false; // todo loading spinner be refactored when we introduce state management
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private apiService: ApiService,
-    private indexedDBService: IndexedDBService
+    private indexedDBService: IndexedDBService,
+    private changeDetectorRef: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -52,6 +60,7 @@ export class NewsCategoryComponent implements OnInit, OnDestroy {
 
   // loads top stories data from indexed db
   async loadSectionData(section: SectionEnum) {
+    this.selectedArticle = null;
     this.stories = await this.indexedDBService
       .getAllArticles(section)
       .then((articles: Article[]) =>
@@ -69,6 +78,8 @@ export class NewsCategoryComponent implements OnInit, OnDestroy {
     const shouldUpdate =
       new Date().getTime() - lastUpdated >
       AppConfigService.appConfig.updateClientStoragePeriod;
+
+    this.changeDetectorRef.markForCheck();
 
     // if we do not have stories or the last updated time is more what mentioned in config.json we fetch again
     if (!this.stories.length || shouldUpdate) {
@@ -116,7 +127,7 @@ export class NewsCategoryComponent implements OnInit, OnDestroy {
     }
   }
 
-  setSelectedArticle(article: Article) {
+  setSelectedArticle(article: Article | null) {
     this.selectedArticle = article;
   }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 import { SectionEnum } from 'src/app/enums/section.enum';
 import { Nav } from 'src/app/models/nav';
 
@@ -8,7 +8,7 @@ import { Nav } from 'src/app/models/nav';
     <span class="badge">{{ badge }}</span>
     <div class="nav-links-wrapper">
       <a
-        *ngFor="let nav of navList"
+        *ngFor="let nav of navList; trackBy: navListTrackBy"
         mat-button
         class="nav-link"
         routerLink="{{ nav.path }}"
@@ -18,6 +18,7 @@ import { Nav } from 'src/app/models/nav';
     </div>
   </mat-toolbar>`,
   styleUrls: ['./navigation.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class NavigationComponent implements OnInit {
   badge = 'NY Times';
@@ -31,4 +32,5 @@ export class NavigationComponent implements OnInit {
 
   constructor() {}
   ngOnInit(): void {}
+  navListTrackBy = (index: number, nav: Nav) => nav.displayName;
 }
