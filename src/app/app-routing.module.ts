@@ -5,7 +5,7 @@ import { PageNotFoundComponent } from './components/business/page-not-found/page
 
 const routes: Routes = [
   {
-    path: 'top-stories/:category',
+    path: 'top-stories/:section',
     component: NewsCategoryComponent,
   },
   {
@@ -20,7 +20,7 @@ const routes: Routes = [
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, { useHash: true })],
+  imports: [RouterModule.forRoot(routes)],
   exports: [RouterModule],
 })
 export class AppRoutingModule {}

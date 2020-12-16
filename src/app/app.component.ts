@@ -1,12 +1,17 @@
 import { Component } from '@angular/core';
-import { openDB } from 'idb';
 
 @Component({
   selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  styleUrls: ['./app.component.scss'],
+  template: `
+    <div class="app-wrapper">
+      <header>
+        <app-navigation></app-navigation>
+      </header>
+      <div class="app-body">
+        <router-outlet></router-outlet>
+      </div>
+    </div>
+  `,
 })
-export class AppComponent {
-  title = 'ny-times';
-  // hello = openDB.open('hello', 1);
-}
+export class AppComponent {}
