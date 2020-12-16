@@ -12,7 +12,7 @@ export interface Article {
   multimedia: Multimedia[];
 }
 
-interface Multimedia {
+export interface Multimedia {
   caption: string;
   type: string;
   url: string;

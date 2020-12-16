@@ -4,7 +4,6 @@ import { Nav } from 'src/app/models/nav';
 
 @Component({
   selector: 'app-navigation',
-  styleUrls: ['./navigation.component.scss'],
   template: ` <mat-toolbar color="primary" class="app-navigation-wrapper">
     <span class="badge">{{ badge }}</span>
     <div class="nav-links-wrapper">
@@ -18,6 +17,7 @@ import { Nav } from 'src/app/models/nav';
       </a>
     </div>
   </mat-toolbar>`,
+  styleUrls: ['./navigation.component.scss'],
 })
 export class NavigationComponent implements OnInit {
   badge = 'NY Times';

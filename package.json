@@ -23,6 +23,7 @@
     "@angular/router": "~11.0.4",
     "@ngrx/store": "^10.1.0",
     "idb": "^5.0.8",
+    "ngx-owl-carousel-o": "^4.0.0",
     "rxjs": "~6.6.0",
     "tslib": "^2.0.0",
     "zone.js": "~0.10.2"

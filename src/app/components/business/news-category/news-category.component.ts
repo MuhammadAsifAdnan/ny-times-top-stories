@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { SectionEnum } from 'src/app/enums/section.enum';
@@ -10,15 +10,24 @@ import { IndexedDBService } from 'src/app/services/indexed-db.service';
 
 @Component({
   selector: 'app-news-category',
-  styleUrls: ['./news-category.component.scss'],
   template: `
-    <p *ngFor="let story of stories">{{ story.title }}</p>
+    <div class="stories-tile-container">
+      <app-story-tiles
+        [stories]="stories"
+        (onSelectedArticle)="setSelectedArticle($event)"
+      ></app-story-tiles>
+    </div>
+    <div class="story-detail-container">
+      <app-article [article]="selectedArticle"></app-article>
+    </div>
     <mat-spinner *ngIf="loadingSpinner" class="loading-spinner"></mat-spinner>
   `,
+  styleUrls: ['./news-category.component.scss'],
 })
 export class NewsCategoryComponent implements OnInit, OnDestroy {
   routeParamSubscription!: Subscription;
   stories: Article[] | [] = [];
+  selectedArticle?: Article;
   loadingSpinner = false; // todo loading spinner be refactored when we introduce state management
 
   constructor(
@@ -105,5 +114,9 @@ export class NewsCategoryComponent implements OnInit, OnDestroy {
       default:
         return SectionEnum.Home;
     }
+  }
+
+  setSelectedArticle(article: Article) {
+    this.selectedArticle = article;
   }
 }
