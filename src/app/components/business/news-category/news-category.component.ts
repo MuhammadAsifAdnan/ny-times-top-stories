@@ -5,6 +5,7 @@ import { SectionEnum } from 'src/app/enums/section.enum';
 import { Article } from 'src/app/models/article';
 import { ResponseModel } from 'src/app/models/response.model';
 import { ApiService } from 'src/app/services/api.service';
+import { AppConfigService } from 'src/app/services/app-config.service';
 import { IndexedDBService } from 'src/app/services/indexed-db.service';
 
 @Component({
@@ -13,33 +14,73 @@ import { IndexedDBService } from 'src/app/services/indexed-db.service';
   template: ` <p *ngFor="let story of stories">{{ story.title }}</p> `,
 })
 export class NewsCategoryComponent implements OnInit, OnDestroy {
-  routeParamSubscription: Subscription;
+  routeParamSubscription!: Subscription;
   stories: Article[] | [] = [];
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private apiService: ApiService,
     private indexedDBService: IndexedDBService
-  ) {
+  ) {}
+
+  ngOnInit(): void {
     this.routeParamSubscription = this.activatedRoute.paramMap.subscribe(
       async (params: ParamMap) => {
-        const section = params.get('section') || '';
-        // section && this.fetchTopStories(this.getSectionName(section));
-        this.stories = await indexedDBService.getAllArticles(
-          this.getSectionName(section)
-        );
+        const param = params.get('section');
+        const section = this.getSectionName(param);
+        this.loadSectionData(section);
       }
     );
   }
-
-  ngOnInit(): void {}
 
   ngOnDestroy(): void {
     this.routeParamSubscription.unsubscribe();
   }
 
+  // loads top stories data from indexed db
+  async loadSectionData(section: SectionEnum) {
+    this.stories = await this.indexedDBService
+      .getAllArticles(section)
+      .then((articles: Article[]) =>
+        articles.sort((a: Article, b: Article) => {
+          const a_updated = new Date(a.updated_date).getTime();
+          const b_updated = new Date(b.updated_date).getTime();
+          if (a_updated === b_updated) {
+            return 0;
+          }
+          return a_updated > b_updated ? -1 : 1;
+        })
+      );
+
+    const lastUpdated = await this.indexedDBService.getLastUpdatedTime(section);
+    const shouldUpdate =
+      new Date().getTime() - lastUpdated >
+      AppConfigService.appConfig.updateClientStoragePeriod;
+
+    // if we do not have stories or the last updated time is more what mentioned in config.json we fetch again
+    if (!this.stories.length || shouldUpdate) {
+      this.getTopStories(section);
+    }
+  }
+
+  // fetches data from api
+  async getTopStories(section: SectionEnum) {
+    this.apiService
+      .fetchTopStories(section)
+      .subscribe((topStoriesResponse: ResponseModel) => {
+        if (topStoriesResponse.status === 'OK') {
+          const { results } = topStoriesResponse;
+          // todo : also store last_updated from api response
+          this.indexedDBService
+            .putArticlesList(section, results, new Date().getTime())
+            .then((data) => this.loadSectionData(section))
+            .catch((error) => console.log(error));
+        }
+      });
+  }
+
   // todo refactor
-  getSectionName(section: string): SectionEnum {
+  getSectionName(section: string | null): SectionEnum {
     switch (section) {
       case SectionEnum.Home:
         return SectionEnum.Home;
@@ -55,23 +96,4 @@ export class NewsCategoryComponent implements OnInit, OnDestroy {
         return SectionEnum.Home;
     }
   }
-
-  fetchTopStories(section: SectionEnum): void {
-    this.apiService
-      .fetchTopStories(section)
-      .subscribe((topStoriesResponse: ResponseModel) => {
-        if (topStoriesResponse.status === 'OK') {
-          // const { section, results } = topStoriesResponse;
-          this.indexedDBService.connectToDB();
-
-          this.indexedDBService
-            .putArticlesList(section, topStoriesResponse.results)
-            .catch((error) => console.log(error));
-        }
-      });
-  }
-
-  putArticle() {}
-
-  async getArticle() {}
 }

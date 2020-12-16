@@ -12,7 +12,7 @@ import { NavigationComponent } from './components/business/navigation/navigation
 import { PageNotFoundComponent } from './components/business/page-not-found/page-not-found.component';
 import { NewsCategoryComponent } from './components/business/news-category/news-category.component';
 
-import { HttpRequestInterceptor } from './services/http-request.interceptor';
+import { HttpRequestInterceptor } from './interceptors/http-request.interceptor';
 import { AppConfigService } from './services/app-config.service';
 import { AppConfigInitializer } from './services/app-initializer.service';
 

@@ -6,7 +6,7 @@ import {
   HttpHandler,
 } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { AppConfigService } from './app-config.service';
+import { AppConfigService } from '../services/app-config.service';
 
 @Injectable()
 export class HttpRequestInterceptor implements HttpInterceptor {

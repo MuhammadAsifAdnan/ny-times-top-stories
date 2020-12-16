@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { DBSchema, IDBPDatabase } from 'idb';
-import { openDB } from 'idb/with-async-ittr.js';
+import { IDBPDatabase, openDB } from 'idb';
 import { SectionEnum } from '../enums/section.enum';
 import { Article } from '../models/article';
+import { NytTopStoriesDB } from '../models/db-schema';
 
 @Injectable({
   providedIn: 'root',
@@ -14,46 +14,58 @@ export class IndexedDBService {
     this.connectToDB();
   }
 
-  async connectToDB() {
+  private async connectToDB() {
     this.nytTopStoriesDB = await openDB<NytTopStoriesDB>(
       'ny-times-top-stories',
       1,
       {
-        upgrade(nytTopStoriesDB) {
-          // creating stores for each section
-          Object.values(SectionEnum).map((sectionName) => {
-            const articlesStoreHome = nytTopStoriesDB.createObjectStore(
+        async upgrade(nytTopStoriesDB) {
+          // last_updated store -> stores the last update time of each section
+          await nytTopStoriesDB.createObjectStore('last_updated');
+          // stores for each section
+          Object.values(SectionEnum).map(async (sectionName) => {
+            const articlesStore = await nytTopStoriesDB.createObjectStore(
               sectionName,
               {
                 keyPath: 'uri',
               }
             );
-            articlesStoreHome.createIndex('updated_date', 'updated_date');
+            await articlesStore.createIndex('updated_date', 'updated_date');
           });
         },
       }
     );
   }
 
+  // in case we try to perform any queries before we are connected to the DB
+  // todo: this can be improved
   private async checkIfDBConnected() {
     !this.nytTopStoriesDB && (await this.connectToDB());
   }
 
-  public async putArticle(storeName: SectionEnum, article: Article) {
-    await this.checkIfDBConnected();
-    await this.nytTopStoriesDB.put(storeName, article);
-  }
+  // public async putArticle(storeName: SectionEnum, article: Article) {
+  //   await this.checkIfDBConnected();
+  //   await this.nytTopStoriesDB.put(storeName, article);
+  // }
 
-  public async putArticlesList(storeName: SectionEnum, articles: Article[]) {
+  public async putArticlesList(
+    sectionName: SectionEnum,
+    articles: Article[],
+    lastUpdated: number
+  ) {
     await this.checkIfDBConnected();
-    const tx = this.nytTopStoriesDB.transaction(storeName, 'readwrite');
+    const tx = this.nytTopStoriesDB.transaction(
+      [sectionName, 'last_updated'],
+      'readwrite'
+    );
     await Promise.all([
-      articles.map((article) => tx.store.put(article)),
+      articles.map((article) => tx.objectStore(sectionName).put(article)),
+      tx.objectStore('last_updated').put(lastUpdated, sectionName), // put last updated time in last_updated store
       tx.done,
     ]);
   }
 
-  public async getArticle(storeName: SectionEnum, key: number) {
+  public async getArticle(storeName: SectionEnum, key: string) {
     await this.checkIfDBConnected();
     return await this.nytTopStoriesDB.get(storeName, key);
   }
@@ -65,18 +77,9 @@ export class IndexedDBService {
       'updated_date'
     );
   }
-}
 
-interface NytTopStoriesDB extends DBSchema {
-  home: ArticleStoreSchema;
-  us: ArticleStoreSchema;
-  world: ArticleStoreSchema;
-  science: ArticleStoreSchema;
-  arts: ArticleStoreSchema;
-}
-
-interface ArticleStoreSchema {
-  key: number;
-  value: Article;
-  indexes: { updated_date: string };
+  public async getLastUpdatedTime(section: SectionEnum) {
+    await this.checkIfDBConnected();
+    return (await this.nytTopStoriesDB.get('last_updated', section)) || 0;
+  }
 }

@@ -5,7 +5,7 @@ import { Nav } from 'src/app/models/nav';
 @Component({
   selector: 'app-navigation',
   styleUrls: ['./navigation.component.scss'],
-  template: `<mat-toolbar color="primary" class="app-navigation-wrapper">
+  template: ` <mat-toolbar color="primary" class="app-navigation-wrapper">
     <span class="badge">{{ badge }}</span>
     <div class="nav-links-wrapper">
       <a
@@ -20,8 +20,6 @@ import { Nav } from 'src/app/models/nav';
   </mat-toolbar>`,
 })
 export class NavigationComponent implements OnInit {
-  constructor() {}
-
   badge = 'NY Times';
   navList: Nav[] = [
     { displayName: SectionEnum.Home, path: 'top-stories/home' },
@@ -31,5 +29,6 @@ export class NavigationComponent implements OnInit {
     { displayName: SectionEnum.Arts, path: 'top-stories/arts' },
   ];
 
+  constructor() {}
   ngOnInit(): void {}
 }
