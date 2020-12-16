@@ -1,0 +1,5 @@
+{
+  "apiBasePath": "https://api.nytimes.com/svc/topstories/v2/",
+  "apiKey": "hd9VKgAHGC8mGQPL6oxloCBXXVgZkheF",
+  "updateClientStoragePeriod": 600000
+}
