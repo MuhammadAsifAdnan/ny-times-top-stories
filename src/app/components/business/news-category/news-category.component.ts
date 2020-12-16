@@ -11,11 +11,15 @@ import { IndexedDBService } from 'src/app/services/indexed-db.service';
 @Component({
   selector: 'app-news-category',
   styleUrls: ['./news-category.component.scss'],
-  template: ` <p *ngFor="let story of stories">{{ story.title }}</p> `,
+  template: `
+    <p *ngFor="let story of stories">{{ story.title }}</p>
+    <mat-spinner *ngIf="loadingSpinner" class="loading-spinner"></mat-spinner>
+  `,
 })
 export class NewsCategoryComponent implements OnInit, OnDestroy {
   routeParamSubscription!: Subscription;
   stories: Article[] | [] = [];
+  loadingSpinner = false; // todo loading spinner be refactored when we introduce state management
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -65,18 +69,24 @@ export class NewsCategoryComponent implements OnInit, OnDestroy {
 
   // fetches data from api
   async getTopStories(section: SectionEnum) {
-    this.apiService
-      .fetchTopStories(section)
-      .subscribe((topStoriesResponse: ResponseModel) => {
+    this.loadingSpinner = true;
+    this.apiService.fetchTopStories(section).subscribe(
+      (topStoriesResponse: ResponseModel) => {
         if (topStoriesResponse.status === 'OK') {
           const { results } = topStoriesResponse;
           // todo : also store last_updated from api response
           this.indexedDBService
             .putArticlesList(section, results, new Date().getTime())
-            .then((data) => this.loadSectionData(section))
-            .catch((error) => console.log(error));
+            .then(() => this.loadSectionData(section))
+            .catch((error) => console.log(error))
+            .finally(() => (this.loadingSpinner = false));
         }
-      });
+      },
+      (error) => {
+        console.log('oops', error);
+        this.loadingSpinner = false;
+      } // todo: Better error handling
+    );
   }
 
   // todo refactor

@@ -4,6 +4,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -29,6 +30,7 @@ import { AppConfigInitializer } from './services/app-initializer.service';
     AppRoutingModule,
     HttpClientModule,
     MatToolbarModule,
+    MatProgressSpinnerModule,
     MatIconModule,
   ],
   providers: [
