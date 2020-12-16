@@ -4,16 +4,13 @@ import { Multimedia } from '../../../models/article';
 @Component({
   selector: 'app-multimedia-view',
   template: `
-    <div *ngIf="selectedImage">
+    <div *ngIf="selectedImage" class="multimedia-wrapper">
       <img
         [src]="selectedImage.url"
         [alt]="selectedImage.caption"
-        [ngClass]="{
-          thumbnail: format === 'mediumThreeByTwo210',
-          jumbo: format === 'superJumbo'
-        }"
+        [ngClass]="{ jumbo: format === 'superJumbo' }"
       />
-      <span>{{ selectedImage.caption }}</span>
+      <span class="caption">{{ selectedImage.caption }}</span>
     </div>
   `,
   styleUrls: ['./multimedia-view.component.scss'],
